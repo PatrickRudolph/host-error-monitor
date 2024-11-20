@@ -15,6 +15,7 @@
 */
 #pragma once
 #include <sdbusplus/asio/object_server.hpp>
+#include <error_monitors/caterr_monitor.hpp>
 // #include <error_monitors/smi_monitor.hpp>
 
 #include <memory>
@@ -24,6 +25,8 @@ namespace host_error_monitor::error_monitors
 // Error signals to monitor
 // static std::unique_ptr<host_error_monitor::smi_monitor::SMIMonitor>
 // smiMonitor;
+static std::unique_ptr<host_error_monitor::err_pin_sample_monitor::CatErrMonitor>
+caterrMonitor;
 
 // Check if all the signal monitors started successfully
 bool checkMonitors()
@@ -31,6 +34,7 @@ bool checkMonitors()
     bool ret = true;
 
     // ret &= smiMonitor->isValid();
+    ret &= caterrMonitor->isValid();
 
     return ret;
 }
@@ -40,7 +44,16 @@ bool startMonitors(
     [[maybe_unused]] boost::asio::io_context& io,
     [[maybe_unused]] std::shared_ptr<sdbusplus::asio::connection> conn)
 {
-    // smiMonitor =
+    std::vector<std::string> errPins;
+
+    errPins.push_back("FM_CPU_ERR0_LVT3_N");
+    errPins.push_back("FM_CPU_ERR1_LVT3_N");
+    errPins.push_back("FM_CPU_ERR2_LVT3_N");
+    errPins.push_back("FM_CPU_RMCA_LVT3_N");
+
+    caterrMonitor = std::make_unique<host_error_monitor::err_pin_sample_monitor::CatErrMonitor>(
+         io, conn, errPins, "FM_CPU_CATERR_LVT3_N", true, -1);
+
     // std::make_unique<host_error_monitor::smi_monitor::SMIMonitor>(
     //     io, conn, "SMI");
 
@@ -51,6 +64,7 @@ bool startMonitors(
 void sendHostOn()
 {
     // smiMonitor->hostOn();
+    caterrMonitor->hostOn();
 }
 
 } // namespace host_error_monitor::error_monitors
