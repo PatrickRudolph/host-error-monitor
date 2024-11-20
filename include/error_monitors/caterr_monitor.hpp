@@ -131,7 +131,7 @@ class CatErrMonitor :
         BaseGPIOMonitor(io, conn, catErrSignalName, assertValue), pollingTimer(io),
         pollingTimeMs(100), cpuNum(cpuNum)
     {
-        for (auto name : errSignalNames) {
+        for (auto& name : errSignalNames) {
             errPins.emplace_back(std::make_unique<ErrPinLatchMonitor>(io, conn, name));
         }
 
