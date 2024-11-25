@@ -36,21 +36,23 @@ class ErrPinLatchMonitor :
 
     void assertHandler() override
     {
-        asserted = true;
+        assertSeen = true;
     }
 
     void deassertHandler() override
     {
+        /* Latched until reset() is called */
     }
 
   public:
-    bool asserted;
+
+    bool assertSeen;
     const std::string& signalName;
 
     ErrPinLatchMonitor(boost::asio::io_context& io,
                        std::shared_ptr<sdbusplus::asio::connection> conn,
                        const std::string& signalName) :
-        BaseGPIOMonitor(io, conn, signalName, assertValue), asserted(false),
+        BaseGPIOMonitor(io, conn, signalName, assertValue), assertSeen(false),
         signalName(signalName)
     {
         if (valid)
@@ -59,9 +61,14 @@ class ErrPinLatchMonitor :
         }
     }
 
+    bool asserted()
+    {
+        return BaseGPIOMonitor::asserted();
+    }
+
     void reset()
     {
-        asserted = false;
+        assertSeen = false;
     }
 
 };
@@ -72,7 +79,7 @@ class CatErrMonitor :
     const static host_error_monitor::base_gpio_monitor::AssertValue
         assertValue =
             host_error_monitor::base_gpio_monitor::AssertValue::lowAssert;
-    std::vector<std::unique_ptr<ErrPinLatchMonitor>> errPins;
+    std::vector<std::shared_ptr<ErrPinLatchMonitor>> errPins;
     boost::asio::steady_timer pollingTimer;
 
     size_t pollingTimeMs;
@@ -87,12 +94,12 @@ class CatErrMonitor :
 
     void poll()
     {
-        std::string msg;
+        std::string msg = "";
 
         for (auto& pin : errPins) {
             if (msg.length())
                 msg += ", ";
-            msg += pin->signalName + "=" + (pin->asserted ? "0" : "1");
+            msg += pin->signalName + "=" + (pin->assertSeen ? "0" : "1");
             pin->reset();
         }
 
@@ -132,7 +139,8 @@ class CatErrMonitor :
         pollingTimeMs(100), cpuNum(cpuNum)
     {
         for (auto& name : errSignalNames) {
-            errPins.emplace_back(std::make_unique<ErrPinLatchMonitor>(io, conn, name));
+            auto errPin = std::make_shared<ErrPinLatchMonitor>(io, conn, name);
+            errPins.emplace_back(errPin);
         }
 
         if (valid)

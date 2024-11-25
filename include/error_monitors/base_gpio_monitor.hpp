@@ -76,16 +76,6 @@ class BaseGPIOMonitor : public host_error_monitor::base_monitor::BaseMonitor
         return true;
     }
 
-    bool asserted()
-    {
-        if constexpr (debug)
-        {
-            std::cerr << "Checking " << signalName << " state\n";
-        }
-
-        return (line.get_value());
-    }
-
     void checkEvent(bool assertEvent)
     {
         if (assertEvent)
@@ -106,6 +96,17 @@ class BaseGPIOMonitor : public host_error_monitor::base_monitor::BaseMonitor
 
             deassertHandler();
         }
+    }
+
+  protected:
+    bool asserted()
+    {
+        if constexpr (debug)
+        {
+            std::cerr << "Checking " << signalName << " state\n";
+        }
+
+        return (line.get_value());
     }
 
   public:
