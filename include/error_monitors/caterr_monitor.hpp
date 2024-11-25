@@ -37,6 +37,7 @@ class ErrPinLatchMonitor :
     void assertHandler() override
     {
         assertSeen = true;
+        std::cerr << "Signal " << signalName << " asserted\n";
     }
 
     void deassertHandler() override
@@ -88,8 +89,8 @@ class CatErrMonitor :
     void catErrLog(std::string err)
     {
         std::string msg = "CATERR on CPU " + std::to_string(cpuNum) + " " + err;
-
-        log_message(LOG_INFO, msg, "OpenBMC.0.1.CPUError", msg);
+        std::cerr << "CatErrMonitor " << msg << "\n";
+        log_message(LOG_ERR, msg, "OpenBMC.0.1.CPUError", msg);
     }
 
     void poll()
