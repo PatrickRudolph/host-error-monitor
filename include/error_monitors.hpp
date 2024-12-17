@@ -18,6 +18,10 @@
 #include <error_monitors/caterr_monitor.hpp>
 #include <error_monitors/mcerr_monitor.hpp>
 #include <error_monitors/err_pin_monitor.hpp>
+#include <error_monitors/mem_thermtrip_monitor.hpp>
+#include <error_monitors/memhot_monitor.hpp>
+#include <error_monitors/cpu_thermtrip_monitor.hpp>
+#include <error_monitors/mem_thermtrip_monitor.hpp>
 
 // #include <error_monitors/smi_monitor.hpp>
 
@@ -38,6 +42,33 @@ static std::unique_ptr<host_error_monitor::err_pin_monitor::ErrPinMonitor>
 errPin1Monitor;
 static std::unique_ptr<host_error_monitor::err_pin_monitor::ErrPinMonitor>
 errPin2Monitor;
+static std::unique_ptr<host_error_monitor::memhot_monitor::MemhotMonitor>
+memhot0Monitor;
+static std::unique_ptr<host_error_monitor::memhot_monitor::MemhotMonitor>
+memhot1Monitor;
+static std::unique_ptr<host_error_monitor::memhot_monitor::MemhotMonitor>
+memhot2Monitor;
+static std::unique_ptr<host_error_monitor::memhot_monitor::MemhotMonitor>
+memhot3Monitor;
+#if 0
+static std::unique_ptr<host_error_monitor::mem_thermtrip_monitor::MemThermtripMonitor>
+memtrip0Monitor;
+static std::unique_ptr<host_error_monitor::mem_thermtrip_monitor::MemThermtripMonitor>
+memtrip1Monitor;
+static std::unique_ptr<host_error_monitor::mem_thermtrip_monitor::MemThermtripMonitor>
+memtrip2Monitor;
+static std::unique_ptr<host_error_monitor::mem_thermtrip_monitor::MemThermtripMonitor>
+memtrip3Monitor;
+
+static std::unique_ptr<host_error_monitor::cpu_thermtrip_monitor::CPUThermtripMonitor>
+cputrip0Monitor;
+static std::unique_ptr<host_error_monitor::cpu_thermtrip_monitor::CPUThermtripMonitor>
+cputrip1Monitor;
+static std::unique_ptr<host_error_monitor::cpu_thermtrip_monitor::CPUThermtripMonitor>
+cputrip2Monitor;
+static std::unique_ptr<host_error_monitor::cpu_thermtrip_monitor::CPUThermtripMonitor>
+cputrip3Monitor;
+#endif
 
 // Check if all the signal monitors started successfully
 bool checkMonitors()
@@ -51,6 +82,22 @@ bool checkMonitors()
     ret &= errPin1Monitor->isValid();
     ret &= errPin2Monitor->isValid();
 
+    ret &= memhot0Monitor->isValid();
+    ret &= memhot1Monitor->isValid();
+    ret &= memhot2Monitor->isValid();
+    ret &= memhot3Monitor->isValid();
+#if 0
+    ret &= memtrip0Monitor->isValid();
+    ret &= memtrip1Monitor->isValid();
+    ret &= memtrip2Monitor->isValid();
+    ret &= memtrip3Monitor->isValid();
+
+
+    ret &= cputrip0Monitor->isValid();
+    ret &= cputrip1Monitor->isValid();
+    ret &= cputrip2Monitor->isValid();
+    ret &= cputrip3Monitor->isValid();
+#endif
     return ret;
 }
 
@@ -74,6 +121,43 @@ bool startMonitors(
     errPin2Monitor = std::make_unique<host_error_monitor::err_pin_monitor::ErrPinMonitor>(
          io, conn, "FM_CPU_ERR2_LVT3_N", 2);
 
+    memhot0Monitor = std::make_unique<host_error_monitor::memhot_monitor::MemhotMonitor>(
+         io, conn, "H_LVT3_CPU0_MEMHOT_OUT_N", 0);
+
+    memhot1Monitor = std::make_unique<host_error_monitor::memhot_monitor::MemhotMonitor>(
+         io, conn, "H_LVT3_CPU1_MEMHOT_OUT_N", 1);
+
+    memhot2Monitor = std::make_unique<host_error_monitor::memhot_monitor::MemhotMonitor>(
+         io, conn, "H_LVT3_CPU2_MEMHOT_OUT_N", 2);
+
+    memhot3Monitor = std::make_unique<host_error_monitor::memhot_monitor::MemhotMonitor>(
+         io, conn, "H_LVT3_CPU3_MEMHOT_OUT_N", 3);
+#if 0
+    memtrip0Monitor = std::make_unique<host_error_monitor::mem_thermtrip_monitor::MemThermtripMonitor>(
+         io, conn, "H_LVT3_CPU0_MEMTRIP_OUT_N", 0);
+
+    memtrip1Monitor = std::make_unique<host_error_monitor::mem_thermtrip_monitor::MemThermtripMonitor>(
+         io, conn, "H_LVT3_CPU1_MEMTRIP_OUT_N", 1);
+
+    memtrip2Monitor = std::make_unique<host_error_monitor::mem_thermtrip_monitor::MemThermtripMonitor>(
+         io, conn, "H_LVT3_CPU2_MEMTRIP_OUT_N", 2);
+
+    memtrip3Monitor = std::make_unique<host_error_monitor::mem_thermtrip_monitor::MemThermtripMonitor>(
+         io, conn, "H_LVT3_CPU3_MEMTRIP_OUT_N", 3);
+
+
+    cputrip0Monitor = std::make_unique<host_error_monitor::cpu_thermtrip_monitor::CPUThermtripMonitor>(
+         io, conn, "H_LVT3_CPU0_THERMTRIP_OUT_N", 0);
+
+    cputrip1Monitor = std::make_unique<host_error_monitor::cpu_thermtrip_monitor::CPUThermtripMonitor>(
+         io, conn, "H_LVT3_CPU1_THERMTRIP_OUT_N", 1);
+
+    cputrip2Monitor = std::make_unique<host_error_monitor::cpu_thermtrip_monitor::CPUThermtripMonitor>(
+         io, conn, "H_LVT3_CPU2_THERMTRIP_OUT_N", 2);
+
+    cputrip3Monitor = std::make_unique<host_error_monitor::cpu_thermtrip_monitor::CPUThermtripMonitor>(
+         io, conn, "H_LVT3_CPU3_THERMTRIP_OUT_N", 3);
+#endif
     // std::make_unique<host_error_monitor::smi_monitor::SMIMonitor>(
     //     io, conn, "SMI");
 
@@ -89,6 +173,22 @@ void sendHostOn()
     errPin0Monitor->hostOn();
     errPin1Monitor->hostOn();
     errPin2Monitor->hostOn();
+
+    memhot0Monitor->hostOn();
+    memhot1Monitor->hostOn();
+    memhot2Monitor->hostOn();
+    memhot3Monitor->hostOn();
+#if 0
+    memtrip0Monitor->hostOn();
+    memtrip1Monitor->hostOn();
+    memtrip2Monitor->hostOn();
+    memtrip3Monitor->hostOn();
+
+    cputrip0Monitor->hostOn();
+    cputrip1Monitor->hostOn();
+    cputrip2Monitor->hostOn();
+    cputrip3Monitor->hostOn();
+#endif
 }
 
 } // namespace host_error_monitor::error_monitors
